@@ -39,7 +39,7 @@ public interface BookTransactionHistoryRepository extends JpaRepository<BookTran
           SELECT transaction
           FROM BookTransactionHistory transaction
           WHERE transaction.user.id = :userId
-          AND transaction.book.id = : bookId
+          AND transaction.book.id = :bookId
           AND transaction.returned = false
           AND transaction.returnApproved = false
           """)
@@ -49,9 +49,9 @@ public interface BookTransactionHistoryRepository extends JpaRepository<BookTran
           SELECT transaction
           FROM BookTransactionHistory transaction
           WHERE transaction.book.owner.id = :userId
-          AND transaction.book.id = : bookId
+          AND transaction.book.id = :bookId
           AND transaction.returned = true
           AND transaction.returnApproved = false
           """)
-  Optional<BookTransactionHistory > findByBookIdOwnerId(Integer bookId, Integer id);
+  Optional<BookTransactionHistory > findByBookIdOwnerId(Integer bookId, Integer userId);
 }
