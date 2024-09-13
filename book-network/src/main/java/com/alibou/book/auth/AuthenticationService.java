@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -117,5 +118,13 @@ public class AuthenticationService {
     userRepository.save(user);
     savedToken.setValidatedAt(LocalDateTime.now());
     tokenRepository.save(savedToken);
+  }
+
+  public String getCurrentUsername(Authentication authentication){
+    if(authentication != null && authentication.isAuthenticated()){
+      User user = ((User)authentication.getPrincipal());
+      return user.name();
+    }
+    return "Desconocido";
   }
 }
