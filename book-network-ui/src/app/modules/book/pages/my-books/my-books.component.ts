@@ -1,23 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { BookResponse, PageResponseBookResponse } from 'src/app/services/models';
+import {
+  BookResponse,
+  PageResponseBookResponse,
+} from 'src/app/services/models';
 import { BookService } from 'src/app/services/services';
 
 @Component({
   selector: 'app-my-books',
   templateUrl: './my-books.component.html',
-  styleUrls: ['./my-books.component.css']
+  styleUrls: ['./my-books.component.css'],
 })
-export class MyBooksComponent implements OnInit{
-
+export class MyBooksComponent implements OnInit {
   bookResponse: PageResponseBookResponse = {};
-  page :number = 0;
-  size :number = 4;
-  
-  constructor(
-    private bookService: BookService, 
-    private router: Router 
-  ) {}
+  page: number = 0;
+  size: number = 4;
+
+  constructor(private bookService: BookService, private router: Router) {}
 
   ngOnInit(): void {
     this.findAllBooks();
@@ -35,42 +34,58 @@ export class MyBooksComponent implements OnInit{
       });
   }
 
-  gotToFirstPage(){
-    this.page =0;
+  gotToFirstPage() {
+    this.page = 0;
     this.findAllBooks();
   }
 
-  gotToPreviousPage(){
+  gotToPreviousPage() {
     this.page--;
     this.findAllBooks();
   }
 
-  gotToPage(page:number){
-    this.page=page;
+  gotToPage(page: number) {
+    this.page = page;
     this.findAllBooks();
   }
 
-  gotToNextPage(){
+  gotToNextPage() {
     this.page++;
     this.findAllBooks();
   }
 
-  gotToLastPage(){
-    this.page = this.bookResponse.totalPages as number -1;
+  gotToLastPage() {
+    this.page = (this.bookResponse.totalPages as number) - 1;
     this.findAllBooks();
   }
 
-  get isLastPage():boolean{
-    return this.page == this.bookResponse.totalPages as number -1;
+  get isLastPage(): boolean {
+    return this.page == (this.bookResponse.totalPages as number) - 1;
   }
 
   editBook(book: BookResponse) {
-    throw new Error('Method not implemented.');
+    this.router.navigate(['books', 'manage', book.id]);
   }
   shareBook(book: BookResponse) {
-    throw new Error('Method not implemented.');
+    this.bookService
+      .updateShareableStatus({
+        'book-id': book.id as number,
+      })
+      .subscribe({
+        next: () => {
+          book.shareable = !book.shareable;
+        },
+      });
   }
   archiveBook(book: BookResponse) {
-    throw new Error('Method not implemented.');
+    this.bookService
+      .updateArchivedStatus({
+        'book-id': book.id as number,
+      })
+      .subscribe({
+        next: () => {
+          book.archived = !book.archived;
+        },
+      });
   }
 }

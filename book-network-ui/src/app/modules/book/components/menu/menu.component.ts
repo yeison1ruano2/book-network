@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from 'src/app/services/services';
 
 @Component({
   selector: 'app-menu',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
+  usernameActual: string = '';
+  constructor(private authenticationService: AuthenticationService) {}
   ngOnInit(): void {
     const linkColor = document.querySelectorAll('.nav-link');
     linkColor.forEach((link) => {
@@ -17,8 +20,18 @@ export class MenuComponent implements OnInit {
         link.classList.add('active');
       });
     });
+    this.getCurrentUsername();
   }
   logout() {
     throw new Error('Method not implemented.');
+  }
+
+  getCurrentUsername() {
+    this.usernameActual = '';
+    this.authenticationService.getCurrentUsername().subscribe({
+      next: (res: any) => {
+        this.usernameActual = res.firstname;
+      },
+    });
   }
 }

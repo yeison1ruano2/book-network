@@ -1,4 +1,8 @@
-<div class="card" style="width: 20rem">
+<div 
+  class="card border-2" 
+  style="width: 20rem" 
+  [class.border-success]="book.shareable" 
+  [class.border-warning]="book.archived">
   <img [src]="bookCover" class="card-img-top" alt="..." height="200" />
   <div class="card-body overflow-scroll">
     <h5 class="card-title fs-6 text-nowrap fw-bold mb-1"><i class="fa-solid fa-book"></i>&nbsp;{{book.title}}</h5>

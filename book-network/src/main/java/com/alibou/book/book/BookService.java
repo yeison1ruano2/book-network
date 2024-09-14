@@ -195,7 +195,7 @@ public class BookService {
     Book book = bookRepository.findById(bookId)
             .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
     User user = ((User)connectedUser.getPrincipal());
-    var bookCover = fileStorageService.saveFile(file,bookId,user.getId());
+    String bookCover = fileStorageService.saveFile(file,bookId,user.getId());
     book.setBookCover(bookCover);
     bookRepository.save(book);
   }

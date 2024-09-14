@@ -9,6 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("auth")
 @RequiredArgsConstructor
@@ -39,8 +42,10 @@ public class AuthenticationController {
   }
 
   @GetMapping("/current")
-  public ResponseEntity<String> getCurrentUsername(Authentication authentication){
+  public ResponseEntity<Map<String,String>> getCurrentUsername(Authentication authentication){
+    Map<String,String> response = new HashMap<>();
     String username = service.getCurrentUsername(authentication);
-    return ResponseEntity.ok(username);
+    response.put("firstname",username);
+    return ResponseEntity.ok(response);
   }
 }
