@@ -23,7 +23,8 @@ export class MenuComponent implements OnInit {
     this.getCurrentUsername();
   }
   logout() {
-    throw new Error('Method not implemented.');
+    localStorage.removeItem('token');
+    window.location.reload();
   }
 
   getCurrentUsername() {

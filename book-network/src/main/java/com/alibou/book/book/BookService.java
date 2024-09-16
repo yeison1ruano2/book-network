@@ -116,7 +116,7 @@ public class BookService {
     Book book = bookRepository.findById(bookId)
             .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes actualizar el estado de los libros para compartir");
     }
     book.setShareable(!book.isShareable());
@@ -128,7 +128,7 @@ public class BookService {
     Book book = bookRepository.findById(bookId)
             .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes actualizar el estado de los libros para archivar");
     }
     book.setArchived(!book.isArchived());
@@ -143,7 +143,7 @@ public class BookService {
       throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
     }
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes pedir prestado tu propio libro.");
     }
     final boolean isAlreadyBorrowed = bookTransactionHistoryRepository.isAlreadyBorrowedByUser(bookId,user.getId());
@@ -166,7 +166,7 @@ public class BookService {
       throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
     }
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes pedir prestado o devolver tu propio libro.");
     }
     BookTransactionHistory bookTransactionHistory = bookTransactionHistoryRepository.findByBookIdAndUserId(bookId,user.getId())
@@ -182,7 +182,7 @@ public class BookService {
       throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
     }
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes pedir prestado o devolver tu propio libro.");
     }
     BookTransactionHistory bookTransactionHistory = bookTransactionHistoryRepository.findByBookIdOwnerId(bookId,user.getId())

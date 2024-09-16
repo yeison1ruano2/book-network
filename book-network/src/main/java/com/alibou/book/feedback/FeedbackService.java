@@ -29,7 +29,7 @@ public class FeedbackService {
       throw new OperationNotPermittedException("No puedo dar comentarios sobre algo archivado o que no se puede compartir. ");
     }
     User user = ((User)connectedUser.getPrincipal());
-    if(!Objects.equals(book.getOwner().getId(), user.getId())){
+    if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes dar comentarios sobre tu propio libro");
     }
     Feedback feedback = feedbackMapper.toFeedback(request);

@@ -24,6 +24,7 @@ export class BookListComponent implements OnInit {
     this.findAllBooks();
   }
   private findAllBooks() {
+    console.log('Aqui');
     this.bookService
       .findAllBooks({
         page: this.page,
