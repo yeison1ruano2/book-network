@@ -26,6 +26,9 @@ public class BookService {
   private final BookTransactionHistoryRepository bookTransactionHistoryRepository;
   private final BookMapper bookMapper;
   private final FileStorageService fileStorageService;
+  private static final String CREATED_DATE = "createdDate";
+  private static final String BOOK_NOT_FOUND = "El libro no fue encontrado con el ID: ";
+  private static final String BOOK_NOT_AVAILABLE = "El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.";
 
   public Integer save(BookRequest request, Authentication connectedUser) {
     User user = ((User)connectedUser.getPrincipal());
@@ -42,7 +45,7 @@ public class BookService {
 
   public PageResponse<BookResponse> findAllBooks(int page, int size, Authentication connectedUser) {
     User user = ((User)connectedUser.getPrincipal());
-    Pageable pageable = PageRequest.of(page,size, Sort.by("createdDate").descending());
+    Pageable pageable = PageRequest.of(page,size, Sort.by(CREATED_DATE).descending());
     Page<Book> books = bookRepository.findAllDisplayableBooks (pageable,user.getId());
     List<BookResponse> bookResponse = books.stream()
             .map(bookMapper::toBookResponse)
@@ -60,7 +63,7 @@ public class BookService {
 
   public PageResponse<BookResponse> findAllBooksByOwner(int page, int size, Authentication connectedUser) {
     User user = ((User)connectedUser.getPrincipal());
-    Pageable pageable = PageRequest.of(page,size, Sort.by("createdDate").descending());
+    Pageable pageable = PageRequest.of(page,size, Sort.by(CREATED_DATE).descending());
     Page<Book> books = bookRepository.findAll(BookSpecification.withOwnerId(user.getId()),pageable);
     List<BookResponse> bookResponse = books.stream()
             .map(bookMapper::toBookResponse)
@@ -78,7 +81,7 @@ public class BookService {
 
   public PageResponse<BorrowedBooksResponse> findAllBorrowedBooks(int page, int size, Authentication connectedUser) {
     User user = ((User)connectedUser.getPrincipal());
-    Pageable pageable = PageRequest.of(page,size, Sort.by("createdDate").descending());
+    Pageable pageable = PageRequest.of(page,size, Sort.by(CREATED_DATE).descending());
     Page<BookTransactionHistory> allBorrowedBooks = bookTransactionHistoryRepository.findAllBorrowedBooks(pageable,user.getId());
     List<BorrowedBooksResponse> bookResponse = allBorrowedBooks.stream()
             .map(bookMapper::toBorrowedBookResponse)
@@ -96,7 +99,7 @@ public class BookService {
 
   public PageResponse<BorrowedBooksResponse> findAllReturnedBooks(int page, int size, Authentication connectedUser) {
     User user = ((User)connectedUser.getPrincipal());
-    Pageable pageable = PageRequest.of(page,size, Sort.by("createdDate").descending());
+    Pageable pageable = PageRequest.of(page,size, Sort.by(CREATED_DATE).descending());
     Page<BookTransactionHistory> allBorrowedBooks = bookTransactionHistoryRepository.findAllReturnedBooks(pageable,user.getId());
     List<BorrowedBooksResponse> bookResponse = allBorrowedBooks.stream()
             .map(bookMapper::toBorrowedBookResponse)
@@ -114,7 +117,7 @@ public class BookService {
 
   public Integer updateShareableStatus(Integer bookId, Authentication connectedUser) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     User user = ((User)connectedUser.getPrincipal());
     if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes actualizar el estado de los libros para compartir");
@@ -126,7 +129,7 @@ public class BookService {
 
   public Integer updateArchivedStatus(Integer bookId, Authentication connectedUser) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     User user = ((User)connectedUser.getPrincipal());
     if(Objects.equals(book.getOwner().getId(), user.getId())){
       throw new OperationNotPermittedException("No puedes actualizar el estado de los libros para archivar");
@@ -138,9 +141,9 @@ public class BookService {
 
   public Integer borrowBook(Integer bookId, Authentication connectedUser) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     if(book.isArchived() || !book.isShareable()){
-      throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
+      throw new OperationNotPermittedException(BOOK_NOT_AVAILABLE);
     }
     User user = ((User)connectedUser.getPrincipal());
     if(Objects.equals(book.getOwner().getId(), user.getId())){
@@ -161,9 +164,9 @@ public class BookService {
 
   public Integer returnBorrowedBook(Integer bookId, Authentication connectedUser) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     if(book.isArchived() || !book.isShareable()){
-      throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
+      throw new OperationNotPermittedException(BOOK_NOT_AVAILABLE);
     }
     User user = ((User)connectedUser.getPrincipal());
     if(Objects.equals(book.getOwner().getId(), user.getId())){
@@ -177,9 +180,9 @@ public class BookService {
 
   public Integer approveReturnBorrowedBook(Integer bookId, Authentication connectedUser) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     if(book.isArchived() || !book.isShareable()){
-      throw new OperationNotPermittedException("El libro solicitado no se puede tomar prestado ya que está archivado o no se puede compartir.");
+      throw new OperationNotPermittedException(BOOK_NOT_AVAILABLE);
     }
     User user = ((User)connectedUser.getPrincipal());
     if(Objects.equals(book.getOwner().getId(), user.getId())){
@@ -193,9 +196,9 @@ public class BookService {
 
   public void uploadBookCoverPicture(MultipartFile file, Authentication connectedUser, Integer bookId) {
     Book book = bookRepository.findById(bookId)
-            .orElseThrow(()-> new EntityNotFoundException("El libro no fue encontrado con el ID: " + bookId));
+            .orElseThrow(()-> new EntityNotFoundException(BOOK_NOT_FOUND + bookId));
     User user = ((User)connectedUser.getPrincipal());
-    String bookCover = fileStorageService.saveFile(file,bookId,user.getId());
+    String bookCover = fileStorageService.saveFile(file,user.getId());
     book.setBookCover(bookCover);
     bookRepository.save(book);
   }

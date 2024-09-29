@@ -1,5 +1,7 @@
 package com.alibou.book.auth;
 
+import com.alibou.book.exception.ExpiredTokenException;
+import com.alibou.book.exception.InvalidTokenException;
 import com.alibou.book.role.RoleRepository;
 import com.alibou.book.security.JwtService;
 import com.alibou.book.user.Token;
@@ -73,9 +75,9 @@ public class AuthenticationService {
   }
 
   private String generatedAndSaveActivationToken(User user) {
-    String generatedToken=generateActivation(6);
+    String generatedToken=generateActivation();
     var token = Token.builder()
-            .token(generatedToken)
+            .tokenValue(generatedToken)
             .createdAt(LocalDateTime.now())
             .expiresAt(LocalDateTime.now().plusMinutes(15))
             .user(user)
@@ -84,11 +86,11 @@ public class AuthenticationService {
     return generatedToken;
   }
 
-  private String generateActivation(int length) {
+  private String generateActivation() {
     String characters = "0123456789";
     StringBuilder codeBuilder = new StringBuilder();
     SecureRandom secureRandom =  new SecureRandom();
-    for(int i=0;i<length; i++){
+    for(int i = 0; i< 6; i++){
       int randomIndex = secureRandom.nextInt(characters.length());
       codeBuilder.append(characters.charAt(randomIndex));
     }
@@ -108,10 +110,10 @@ public class AuthenticationService {
 
   @Transactional
   public void activateAccount(String token) throws MessagingException {
-    Token savedToken = tokenRepository.findByToken(token).orElseThrow(()-> new RuntimeException("Token invalido"));
+    Token savedToken = tokenRepository.findByToken(token).orElseThrow(()-> new InvalidTokenException("Token invalido"));
     if(LocalDateTime.now().isAfter(savedToken.getExpiresAt())){
       sendValidationEmail(savedToken.getUser());
-      throw  new RuntimeException("El token ha expirado, vuelve a intentarlo con otro token");
+      throw  new ExpiredTokenException("El token ha expirado, vuelve a intentarlo con otro token");
     }
     var user = userRepository.findById(savedToken.getUser().getId()).orElseThrow(()-> new UsernameNotFoundException("Usuario no encontrado"));
     user.setEnabled(true);

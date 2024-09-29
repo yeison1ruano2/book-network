@@ -12,12 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table (name="_user")
 @EntityListeners(AuditingEntityListener.class)
-public class User implements UserDetails, Principal {
+public class User implements UserDetails, Principal, Serializable {
 
   @Id
   @GeneratedValue
@@ -42,13 +42,13 @@ public class User implements UserDetails, Principal {
   private boolean enabled;
 
   @ManyToMany(fetch = FetchType.EAGER)
-  private List<Role> roles;
+  private transient List<Role> roles;
 
   @OneToMany(mappedBy = "owner")
-  private List<Book> books;
+  private transient List<Book> books;
 
   @OneToMany(mappedBy = "user")
-  private List<BookTransactionHistory> histories;
+  private transient List<BookTransactionHistory> histories;
 
   @CreatedDate
   @Column(nullable = false,updatable = false)
@@ -58,13 +58,8 @@ public class User implements UserDetails, Principal {
   private LocalDateTime lastModifiedDate;
 
   @Override
-  public String getName() {
-    return email;
-  }
-
-  @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
+    return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).toList();
   }
 
   @Override
@@ -101,4 +96,9 @@ public class User implements UserDetails, Principal {
     return firstname + " " + lastname;
   }
   public String name(){return firstname;}
+
+  @Override
+  public String getName() {
+    return "";
+  }
 }

@@ -9,10 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
-public class FileUtils {
+public final class FileUtils {
+  private FileUtils() {
+    throw new UnsupportedOperationException("Utility class");
+  }
   public static byte[] readFileFromLocation(String fileUrl) {
     if(StringUtils.isBlank(fileUrl)){
-      return null;
+      return new byte[0];
     }
     try {
       Path filePath = new File(fileUrl).toPath();
@@ -20,6 +23,6 @@ public class FileUtils {
     }catch (IOException e){
       log.warn("Archivo no encontrado en la direccion {}",fileUrl);
     }
-    return null;
+    return new byte[0];
   }
 }

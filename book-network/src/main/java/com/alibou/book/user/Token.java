@@ -2,7 +2,6 @@ package com.alibou.book.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +16,7 @@ public class Token {
   @Id
   @GeneratedValue
   private Integer id;
-  private String token;
+  private String tokenValue;
   private LocalDateTime createdAt;
   private LocalDateTime expiresAt;
   private LocalDateTime validatedAt;
